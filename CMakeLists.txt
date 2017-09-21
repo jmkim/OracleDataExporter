@@ -21,6 +21,6 @@ set(SOURCE_FILES
         src/oracle_datatype/TimeWithTimezone.cpp
         src/oracle_datatype/TimeWithTimezone.hpp
         src/util/ColumnInterpreter.cpp
-        src/util/ColumnInterpreter.hpp)
+        src/util/ColumnInterpreter.hpp src/oracle_datatype/Char.cpp src/oracle_datatype/Char.hpp)
 
 add_executable(OracleDataExporter ${SOURCE_FILES})

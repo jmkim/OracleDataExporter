@@ -11,6 +11,7 @@
 #include "../oracle_datatype/Timestamp.hpp"
 #include "../oracle_datatype/TimestampWithTimezone.hpp"
 #include "../oracle_datatype/Number.hpp"
+#include "../oracle_datatype/Char.hpp"
 
 std::string
 oracle_data_exporter::util::ColumnInterpreter::Interpret (const uint8_t column_data[], const size_t &column_data_size, const std::string &time_format)
@@ -22,6 +23,10 @@ oracle_data_exporter::util::ColumnInterpreter::Interpret (const std::vector<uint
   std::shared_ptr<oracle_datatype::OracleDataInterface> data;
   switch (column_data.at (0))
     {
+      case 1:
+      case 96:
+        { data = std::make_shared<oracle_datatype::Char> (column_data); }
+      break;
       case 2:
         { data = std::make_shared<oracle_datatype::Number> (column_data); }
       break;
