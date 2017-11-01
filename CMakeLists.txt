@@ -10,8 +10,6 @@ set(SOURCE_FILES
         src/oracle_datatype/Datetime.hpp
         src/oracle_datatype/Number.cpp
         src/oracle_datatype/Number.hpp
-        src/oracle_datatype/OracleDataInterface.hpp
-        src/oracle_datatype/OracleLOBDataInterface.hpp
         src/oracle_datatype/Time.cpp
         src/oracle_datatype/Time.hpp
         src/oracle_datatype/Timestamp.cpp
@@ -21,6 +19,12 @@ set(SOURCE_FILES
         src/oracle_datatype/TimeWithTimezone.cpp
         src/oracle_datatype/TimeWithTimezone.hpp
         src/util/ColumnInterpreter.cpp
-        src/util/ColumnInterpreter.hpp src/oracle_datatype/Char.cpp src/oracle_datatype/Char.hpp)
+        src/util/ColumnInterpreter.hpp
+        src/IStringable.hpp
+        src/oracle_datatype/OracleData.cpp
+        src/oracle_datatype/OracleData.hpp
+        src/oracle_datatype/Datetime.cpp
+        src/oracle_datatype/Char.cpp
+        src/oracle_datatype/Char.hpp)
 
 add_executable(OracleDataExporter ${SOURCE_FILES})

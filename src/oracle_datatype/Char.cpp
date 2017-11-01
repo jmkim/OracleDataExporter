@@ -9,22 +9,28 @@ oracle_data_exporter::oracle_datatype::Char::Char (const uint8_t column_data[], 
 {}
 
 oracle_data_exporter::oracle_datatype::Char::Char (const std::vector<uint8_t> &column_data)
-    : OracleDataInterface (column_data)
+    : OracleData (column_data)
+{}
+
+oracle_data_exporter::oracle_datatype::Char::Char
+    (const Char &oracle_data)
+    : OracleData (oracle_data)
+{}
+
+oracle_data_exporter::oracle_datatype::Char &
+oracle_data_exporter::oracle_datatype::Char::operator=
+    (const Char &rhs)
+{ static_cast<OracleData &>(*this) = rhs; }
+
+std::string oracle_data_exporter::oracle_datatype::Char::toString ()
 {
-  if (type != 1 && type != 96)
+  if (column_data_.at (0) != 1 && column_data_.at (0) != 96)
     { throw std::string ("Error: Not a CHAR (NCHAR, VARCHAR2, NVARCHAR2) data (type byte mismatch)"); }
 
-  for (size_t i = 2; i < length + 2; ++i)
-    { characters_.push_back (column_data.at (i)); }
-}
+  std::string out;
 
-std::string oracle_data_exporter::oracle_datatype::Char::to_string ()
-{
-  return characters_;
-}
+  for (size_t i = 2; i < column_data_.at (1) + 2; ++i)
+    { out.push_back (column_data_.at (i)); }
 
-size_t oracle_data_exporter::oracle_datatype::Char::write (std::ostream &os)
-{
-  os << characters_;
-  return characters_.length ();
+  return out;
 }

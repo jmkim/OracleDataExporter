@@ -5,20 +5,20 @@
 #ifndef ORACLEDATAEXPORTER_CHAR_HPP
 #define ORACLEDATAEXPORTER_CHAR_HPP
 
-#include "OracleDataInterface.hpp"
+#include "OracleData.hpp"
 
 namespace oracle_data_exporter::oracle_datatype
 {
 
-class Char : public OracleDataInterface {
+class Char : public OracleData {
  public:
-  explicit Char (const uint8_t column_data[], const size_t &column_data_size);
+  Char (const uint8_t column_data[], const size_t &column_data_size);
   explicit Char (const std::vector<uint8_t> &column_data);
-  std::string to_string () override;
-  size_t write (std::ostream &os) override;
+  Char (const Char &oracle_data);
 
- private:
-  std::string characters_;
+  Char &operator= (const Char &rhs);
+
+  std::string toString () override;
 };
 
 }

@@ -9,7 +9,7 @@ oracle_data_exporter::oracle_datatype::Timestamp::Timestamp (const uint8_t colum
 {}
 
 oracle_data_exporter::oracle_datatype::Timestamp::Timestamp (const std::vector<uint8_t> &column_data)
-    : Timestamp (column_data, "%d-%b-%Y %I.%M.%S.%9N %p")
+    : Datetime (column_data, "%d-%b-%Y %I.%M.%S.%9N %p")
 {}
 
 oracle_data_exporter::oracle_datatype::Timestamp::Timestamp (const uint8_t column_data[], const size_t &column_data_size, const std::string &format)
@@ -18,35 +18,34 @@ oracle_data_exporter::oracle_datatype::Timestamp::Timestamp (const uint8_t colum
 
 oracle_data_exporter::oracle_datatype::Timestamp::Timestamp (const std::vector<uint8_t> &column_data, const std::string &format)
     : Datetime (column_data, format)
+{}
+
+oracle_data_exporter::oracle_datatype::Timestamp::Timestamp
+    (const Timestamp &oracle_data)
+    : Datetime (oracle_data)
+{}
+
+oracle_data_exporter::oracle_datatype::Timestamp &
+oracle_data_exporter::oracle_datatype::Timestamp::operator=
+    (const Timestamp &rhs)
+{ static_cast<Datetime &>(*this) = rhs; }
+
+std::string oracle_data_exporter::oracle_datatype::Timestamp::toString ()
 {
-  if (type != 180)
+  if (column_data_.at (0) != 180)
     { throw std::string ("Error: Not a TIMESTAMP data (type byte mismatch)"); }
 
-  SetYear (column_data.at (2), column_data.at (3));
-  SetMonth (column_data.at (4));
-  SetDay (column_data.at (5));
-  SetHours (column_data.at (6));
-  SetMinutes (column_data.at (7));
-  SetSeconds (column_data.at (8));
-  SetFractions (
-      FractionsConverter ({column_data.at (9), column_data.at (10), column_data.at (11), column_data.at (12)}));
-}
+  OracleTime time;
 
-std::string oracle_data_exporter::oracle_datatype::Timestamp::to_string ()
-{
-  std::string format (format_);
-  format = Formatter (format, "%9N", std::to_string (fractions_));
+  time.setYear (column_data_.at (2), column_data_.at (3));
+  time.setMonth (column_data_.at (4));
+  time.setDay (column_data_.at (5));
+  time.setHours (column_data_.at (6));
+  time.setMinutes (column_data_.at (7));
+  time.setSeconds (column_data_.at (8));
+  time.setFractions ({column_data_.at (9), column_data_.at (10), column_data_.at (11), column_data_.at (12)});
 
-  char out[70];
-  if (!std::strftime (out, sizeof out, format.c_str (), &time_))
-    { throw ("Error: Invalid TIMESTAMP data (format error)"); }
+  time.setFormat (getFormat ());
 
-  return std::string (out);
-}
-
-size_t oracle_data_exporter::oracle_datatype::Timestamp::write (std::ostream &os)
-{
-  std::string out (to_string ());
-  os << out;
-  return out.length ();
+  return time.toString ();
 }

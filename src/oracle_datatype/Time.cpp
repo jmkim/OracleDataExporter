@@ -9,7 +9,7 @@ oracle_data_exporter::oracle_datatype::Time::Time (const uint8_t column_data[], 
 {}
 
 oracle_data_exporter::oracle_datatype::Time::Time (const std::vector<uint8_t> &column_data)
-    : Time (column_data, "%I:%M:%S.%9N %p")
+    : Datetime (column_data, "%I:%M:%S.%9N %p")
 {}
 
 oracle_data_exporter::oracle_datatype::Time::Time (const uint8_t column_data[], const size_t &column_data_size, const std::string &format)
@@ -18,32 +18,31 @@ oracle_data_exporter::oracle_datatype::Time::Time (const uint8_t column_data[], 
 
 oracle_data_exporter::oracle_datatype::Time::Time (const std::vector<uint8_t> &column_data, const std::string &format)
     : Datetime (column_data, format)
+{}
+
+oracle_data_exporter::oracle_datatype::Time::Time
+    (const Time &oracle_data)
+    : Datetime (oracle_data)
+{}
+
+oracle_data_exporter::oracle_datatype::Time &
+oracle_data_exporter::oracle_datatype::Time::operator=
+    (const Time &rhs)
+{ static_cast<Datetime &>(*this) = rhs; }
+
+std::string oracle_data_exporter::oracle_datatype::Time::toString ()
 {
-  if (type != 178)
+  if (column_data_.at (0) != 178)
     { throw std::string ("Error: Not a TIME data (type byte mismatch)"); }
 
-  SetHours (column_data.at (2));
-  SetMinutes (column_data.at (3));
-  SetSeconds (column_data.at (4));
-  SetFractions (
-      FractionsConverter ({column_data.at (5), column_data.at (6), column_data.at (7), column_data.at (8)}));
-}
+  OracleTime time;
 
-std::string oracle_data_exporter::oracle_datatype::Time::to_string ()
-{
-  std::string format (format_);
-  format = Formatter (format, "%9N", std::to_string (fractions_));
+  time.setHours (column_data_.at (2));
+  time.setMinutes (column_data_.at (3));
+  time.setSeconds (column_data_.at (4));
+  time.setFractions ({column_data_.at (5), column_data_.at (6), column_data_.at (7), column_data_.at (8)});
 
-  char out[70];
-  if (!std::strftime (out, sizeof out, format.c_str (), &time_))
-    { throw ("Error: Invalid TIME data (format error)"); }
+  time.setFormat (getFormat ());
 
-  return std::string (out);
-}
-
-size_t oracle_data_exporter::oracle_datatype::Time::write (std::ostream &os)
-{
-  std::string out (to_string ());
-  os << out;
-  return out.length ();
+  return time.toString ();
 }

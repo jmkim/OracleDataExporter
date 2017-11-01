@@ -10,14 +10,30 @@ oracle_data_exporter::oracle_datatype::Number::Number (const uint8_t column_data
 {}
 
 oracle_data_exporter::oracle_datatype::Number::Number (const std::vector<uint8_t> &column_data)
-    : OracleDataInterface (column_data)
+    : OracleData (column_data)
+{}
+
+oracle_data_exporter::oracle_datatype::Number::Number
+    (const Number &oracle_data)
+    : OracleData (oracle_data)
+{}
+
+oracle_data_exporter::oracle_datatype::Number &
+oracle_data_exporter::oracle_datatype::Number::operator=
+    (const Number &rhs)
+{ static_cast<OracleData &>(*this) = rhs; }
+
+std::string oracle_data_exporter::oracle_datatype::Number::toString ()
 {
-  if (type != 2)
+  if (column_data_.at (0) != 2)
     { throw std::string ("Error: Not a NUMBER data (type byte mismatch)"); }
 
-  uint8_t exponent = column_data.at (2);
+  std::string out;
+
+  uint8_t length = column_data_.at (1);
+  uint8_t exponent = column_data_.at (2);
   size_t digits_len = length - 1ul;
-  std::vector<uint8_t> digits (column_data);
+  std::vector<uint8_t> digits (column_data_);
   digits.erase (digits.begin (), digits.begin () + 3);
 
   if (exponent >= 128)
@@ -37,7 +53,7 @@ oracle_data_exporter::oracle_datatype::Number::Number (const std::vector<uint8_t
         { throw std::string ("Error: Corrupt NUMBER data (expected negative suffix not exists)"); }
 
       --digits_len;
-      number_ += "-";
+      out += "-";
     }
 
   if (exponent >= 0)
@@ -45,35 +61,27 @@ oracle_data_exporter::oracle_datatype::Number::Number (const std::vector<uint8_t
       size_t i;
 
       for (i = 0; i <= exponent; ++i)
-        { number_ += std::to_string ((i < digits_len) ? digits.at (i) : 0); }
+        { out += std::to_string ((i < digits_len) ? digits.at (i) : 0); }
 
       if (exponent < digits_len - 1)
-        { number_ += "."; }
+        { out += "."; }
 
       for (; i < digits_len; ++i)
-        { number_ += std::to_string ((i < digits_len) ? digits.at (i) : 0); }
+        { out += std::to_string ((i < digits_len) ? digits.at (i) : 0); }
     }
   else
     {
-      number_ += "0.";
+      out += "0.";
 
       for (ssize_t i = -1; i > exponent; --i)
-        { number_ += "00"; }
+        { out += "00"; }
 
       size_t i;
       for (i = 0; i < digits_len - 1; ++i)
-        { number_ += std::to_string (digits.at (i)); }
+        { out += std::to_string (digits.at (i)); }
 
-      number_ += std::to_string ((digits.at (i) % 10 == 0) ? digits.at (i) / 10 : digits.at (i));
+      out += std::to_string ((digits.at (i) % 10 == 0) ? digits.at (i) / 10 : digits.at (i));
     }
-}
 
-std::string oracle_data_exporter::oracle_datatype::Number::to_string ()
-{ return number_; }
-
-size_t oracle_data_exporter::oracle_datatype::Number::write (std::ostream &os)
-{
-  std::string out (to_string ());
-  os << out;
-  return out.length ();
+  return out;
 }

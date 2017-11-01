@@ -12,12 +12,17 @@ namespace oracle_data_exporter::oracle_datatype
 
 class Time : public Datetime {
  public:
-  explicit Time (const uint8_t column_data[], const size_t &column_data_size);
+  Time (const uint8_t column_data[], const size_t &column_data_size);
+  Time (const uint8_t column_data[], const size_t &column_data_size, const std::string &format);
+
   explicit Time (const std::vector<uint8_t> &column_data);
-  explicit Time (const uint8_t column_data[], const size_t &column_data_size, const std::string &format);
-  explicit Time (const std::vector<uint8_t> &column_data, const std::string &format);
-  std::string to_string () override;
-  size_t write (std::ostream &os) override;
+  Time (const std::vector<uint8_t> &column_data, const std::string &format);
+
+  Time (const Time &oracle_data);
+
+  Time &operator= (const Time &rhs);
+
+  std::string toString () override;
 };
 
 }

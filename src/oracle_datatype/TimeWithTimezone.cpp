@@ -9,7 +9,7 @@ oracle_data_exporter::oracle_datatype::TimeWithTimezone::TimeWithTimezone (const
 {}
 
 oracle_data_exporter::oracle_datatype::TimeWithTimezone::TimeWithTimezone (const std::vector<uint8_t> &column_data)
-    : TimeWithTimezone (column_data, "%I.%M.%S %p %zH:%zM")
+    : Datetime (column_data, "%I.%M.%S %p %zH:%zM")
 {}
 
 oracle_data_exporter::oracle_datatype::TimeWithTimezone::TimeWithTimezone (const uint8_t column_data[], const size_t &column_data_size, const std::string &format)
@@ -18,35 +18,32 @@ oracle_data_exporter::oracle_datatype::TimeWithTimezone::TimeWithTimezone (const
 
 oracle_data_exporter::oracle_datatype::TimeWithTimezone::TimeWithTimezone (const std::vector<uint8_t> &column_data, const std::string &format)
     : Datetime (column_data, format)
+{}
+
+oracle_data_exporter::oracle_datatype::TimeWithTimezone::TimeWithTimezone
+    (const TimeWithTimezone &oracle_data)
+    : Datetime (oracle_data)
+{}
+
+oracle_data_exporter::oracle_datatype::TimeWithTimezone &
+oracle_data_exporter::oracle_datatype::TimeWithTimezone::operator=
+    (const TimeWithTimezone &rhs)
+{ static_cast<Datetime &>(*this) = rhs; }
+
+std::string oracle_data_exporter::oracle_datatype::TimeWithTimezone::toString ()
 {
-  if (type != 179)
+  if (column_data_.at (0) != 179)
     { throw std::string ("Error: Not a TIME WITH TIME ZONE data (type byte mismatch)"); }
 
-  SetHours (column_data.at (2));
-  SetMinutes (column_data.at (3));
-  SetSeconds (column_data.at (4));
-  SetFractions (
-      FractionsConverter ({column_data.at (5), column_data.at (6), column_data.at (7), column_data.at (8)}));
-  SetTimezone (column_data.at (9), column_data.at (10));
-}
+  OracleTime time;
 
-std::string oracle_data_exporter::oracle_datatype::TimeWithTimezone::to_string ()
-{
-  std::string format (format_);
-  format = Formatter (format, "%9N", std::to_string (fractions_));
-  format = Formatter (format, "%zH", std::to_string (tz_hour_));
-  format = Formatter (format, "%zM", std::to_string (tz_min_));
+  time.setHours (column_data_.at (2));
+  time.setMinutes (column_data_.at (3));
+  time.setSeconds (column_data_.at (4));
+  time.setFractions ({column_data_.at (5), column_data_.at (6), column_data_.at (7), column_data_.at (8)});
+  time.setTimezone (column_data_.at (9), column_data_.at (10));
 
-  char out[70];
-  if (!std::strftime (out, sizeof out, format.c_str (), &time_))
-    { throw ("Error: Invalid TIME WITH TIME ZONE data (format error)"); }
+  time.setFormat (getFormat ());
 
-  return std::string (out);
-}
-
-size_t oracle_data_exporter::oracle_datatype::TimeWithTimezone::write (std::ostream &os)
-{
-  std::string out (to_string ());
-  os << out;
-  return out.length ();
+  return time.toString ();
 }

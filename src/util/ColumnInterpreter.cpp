@@ -4,7 +4,7 @@
 
 #include <memory>
 #include "ColumnInterpreter.hpp"
-#include "../oracle_datatype/OracleDataInterface.hpp"
+#include "../oracle_datatype/OracleData.hpp"
 #include "../oracle_datatype/Date.hpp"
 #include "../oracle_datatype/Time.hpp"
 #include "../oracle_datatype/TimeWithTimezone.hpp"
@@ -20,7 +20,7 @@ oracle_data_exporter::util::ColumnInterpreter::Interpret (const uint8_t column_d
 std::string
 oracle_data_exporter::util::ColumnInterpreter::Interpret (const std::vector<uint8_t> &column_data, const std::string &time_format)
 {
-  std::shared_ptr<oracle_datatype::OracleDataInterface> data;
+  std::shared_ptr<oracle_datatype::OracleData> data;
   switch (column_data.at (0))
     {
       case 1:
@@ -54,5 +54,5 @@ oracle_data_exporter::util::ColumnInterpreter::Interpret (const std::vector<uint
         }
     }
 
-  return data->to_string ();
+  return data->toString ();
 }
