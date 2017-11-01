@@ -87,10 +87,8 @@ void
 oracle_data_exporter::oracle_datatype::Datetime::OracleTime::setFractions
     (const std::array<uint8_t, 4> &ora_fractions)
 {
-  tm_fractions_ = ora_fractions.at (0) * 0x1000000u
-                  + ora_fractions.at (1) * 0x10000u
-                  + ora_fractions.at (2) * 0x100u
-                  + ora_fractions.at (3) * 0x1u;
+  tm_fractions_ =
+      ora_fractions.at (0) << 24 + ora_fractions.at (1) << 16 + ora_fractions.at (2) << 8 + ora_fractions.at (3);
 }
 
 void
